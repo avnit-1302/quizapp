@@ -1,0 +1,126 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - deploy
+
+env:
+  AWS_REGION: eu-west-2                         # set this to your preferred AWS region
+  S3_BUCKET: spring-boot-mobile-app-bucket      # Replace with your S3 bucket name
+  S3_FOLDER: server                             # Folder name in the S3 bucket
+  TARGET_DIR: /home/ubuntu/server               # Path on the EC2 server to place the `server` folder
+  EC2_TAG_NAME: pipeline_skytjenester           # Name tag to identify the EC2 instance
+  EC2_PUBLIC_IP: 18.171.54.189
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v1
+      with:
+        java-version: 17
+
+    - name: Build with Maven
+      run: mvn -B package --file server/pom.xml
+
+    - name: Test with Maven
+      run: mvn test --file server/pom.xml
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Upload server folder to S3
+      run: |
+        aws s3 sync ./server s3://${{ env.S3_BUCKET }}/${{ env.S3_FOLDER }} --delete
+
+  terraform:  
+    name: Terraform Setup
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v1
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-west-2
+
+    - name: Initialize Terraform
+      run: terraform init
+
+    - name: Validate Terraform Configuration
+      run: terraform validate
+
+    - name: Plan Terraform Deployment
+      run: terraform plan -out=tfplan
+
+    - name: Apply Terraform Deployment
+      run: terraform apply -auto-approve tfplan
+
+  deploy:
+    name: Deploy to EC2
+    needs: [build, terraform]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Get EC2 Instance ID
+      id: ec2_instance
+      run: |
+        INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.EC2_TAG_NAME }}" --query "Reservations[0].Instances[0].InstanceId" --output text)
+        echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
+
+#    - name: Download server folder from S3 on EC2
+#      run: |
+#        aws ssm send-command \
+#          --instance-ids ${{ env.INSTANCE_ID }} \
+#          --document-name "AWS-RunShellScript" \
+#          --comment "Download server folder from S3" \
+#          --parameters '{"commands":["aws s3 sync s3://${{ env.S3_BUCKET }}/${{ env.S3_FOLDER }} ${{ env.TARGET_DIR }}"]}' \
+#          --region ${{ env.AWS_REGION }}
+
+    - name: Add SSH key
+      run: |
+        echo "${{ secrets.EC2_SSH_KEY }}" > ec2-key.pem
+        chmod 600 ec2-key.pem
+
+    - name: Trigger script to sync from S3 to EC2
+      run: |
+        ssh -o StrictHostKeyChecking=no -i ec2-key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} \
+          "aws s3 sync s3://${{ env.S3_BUCKET }}/${{ env.S3_FOLDER }} ${{ env.TARGET_DIR }}"
+
+    - name: Restart EC2 server
+      run: |
+        ssh -o StrictHostKeyChecking=no -i ec2-key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} \
+          "sudo reboot"
+        

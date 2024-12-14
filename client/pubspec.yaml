@@ -1,0 +1,52 @@
+name: client
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.5.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.2
+  http_parser: ^4.0.2
+  provider: ^6.0.0
+  shared_preferences: ^2.3.2
+  google_fonts: ^6.2.1
+  transparent_image: ^2.0.1
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+  permission_handler: ^11.3.1
+  image_picker: ^1.1.2
+  stomp_dart_client: ^2.1.0
+  audioplayers: ^6.1.0 
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.1
+  riverpod_generator: ^2.6.1
+  riverpod_lint: ^2.6.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/logo.png
+    - assets/svg/
+    - assets/audio.mp3
+    - assets/audio1.mp3
+    - assets/audio2.mp3
+    - assets/audio3.mp3
+    - assets/finish.mp3
+    - assets/error.mp3
+    - assets/next.mp3
+    - assets/losing.mp3
+    - assets/countup.mp3
+
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo.png"

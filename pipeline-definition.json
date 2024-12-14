@@ -1,0 +1,32 @@
+{
+  "family": "pipeline-task",
+  "networkMode": "awsvpc",
+  "containerDefinitions": [
+    {
+      "name": "pipeline-container",
+      "image": "118780647275.dkr.ecr.eu-west-2.amazonaws.com/pipeline_skytjenester:latest",
+      "cpu": 256,
+      "memory": 512,
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "hostPort": 80,
+          "protocol": "tcp"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/pipeline-task",
+          "awslogs-region": "eu-west-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ],
+  "requiresCompatibilities": ["EC2"],
+  "cpu": "256",
+  "memory": "512",
+  "volumes": []
+}

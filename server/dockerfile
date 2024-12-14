@@ -1,0 +1,42 @@
+# Build stage
+FROM eclipse-temurin:17-jdk-jammy AS builder
+
+# Install Maven
+RUN apt-get update && \
+    apt-get install -y maven && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy pom.xml and build dependencies
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Copy source code and build
+COPY src/ src/
+RUN mvn clean package -DskipTests -B
+
+# Run stage
+FROM eclipse-temurin:17-jre-jammy
+
+# Create a non-root user
+RUN useradd -r -u 1001 -g root springuser
+
+WORKDIR /app
+
+# Copy the built artifact and .env file from builder stage
+COPY --from=builder /app/target/*.jar app.jar
+
+# Set permissions
+RUN chown -R springuser:root /app && \
+    chmod -R 755 /app
+
+# Switch to non-root user
+USER 1001
+
+# Expose port
+EXPOSE 8080
+
+# Run the application
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

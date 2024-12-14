@@ -1,0 +1,44 @@
+services:
+  quizapp-db:
+    image: mysql:latest
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=mobilapp
+      - MYSQL_ROOT_PASSWORD=your_password_here
+      - MYSQL_ROOT_HOST=%
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+#  quizapp-api:
+#    image: jannordskog/springapimobilapp:latest
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      - SERVER_PORT=8080
+#      - DATABASE_URL=jdbc:mysql://quizapp-db:3306/mobilapp?allowPublicKeyRetrieval=true&useSSL=false
+#      - DATABASE_USERNAME=root
+#      - DATABASE_PASSWORD=your_password_here
+#      - DATABASE_DRIVER=com.mysql.cj.jdbc.Driver
+#      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
+#      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+#      - ADMIN_USER=supercooladminname
+#      - ADMIN_PASS=d2341SDsdS3341-.S
+#      - MAIL_HOST=smtp.gmail.com
+#      - MAIL_PORT=587
+#      - MAIL_USERNAME=
+#      - MAIL_PASSWORD=
+#      - JWT_SECRET=6P1Ju45IowX7p9sZUPbdLjYrDm3/Vj1Sa2j6M6GN2aw=
+#    depends_on:
+#      quizapp-db:
+#        condition: service_healthy
+#    restart: unless-stopped
+
+volumes:
+  mysql_data:

@@ -1,0 +1,1002 @@
+@startuml
+set namespaceSeparator ::
+
+class "client::app_settings.dart::AppSettings" {
+  {static} +void initiateScreens()
+  {static} +ThemeData getTheme()
+}
+
+class "client::tools::router.dart::RouterState" {
+  +String path
+  +Map<String, dynamic>? pathVariables
+  +Map<String, dynamic>? values
+  +List<Map<String, dynamic>?> prevValues
+  +List<String> paths
+  +RouterState copyWith()
+}
+
+class "client::tools::router.dart::RouterNotifier" {
+  -Map<String, Widget> _screens
+  +Set<String> excludedPaths
+  +Widget currentScreen
+  +Map<String, dynamic>? getPathVariables
+  +Map<String, dynamic>? getValues
+  +void addScreen()
+  +void removeScreen()
+  +void setPath()
+  +void goBack()
+  -String _getScreenName()
+  -Map<String, dynamic>? _extractPathVariables()
+  +void excludePath()
+  +void excludePaths()
+}
+
+"client::tools::router.dart::RouterNotifier" o-- "flutter::src::widgets::framework.dart::Widget"
+"state_notifier::state_notifier.dart::StateNotifier" <|-- "client::tools::router.dart::RouterNotifier"
+
+class "client::tools::api_handler.dart::ApiHandler" {
+  {static} -String _url
+  {static} -String _wsUrl
+  {static} +String url
+  {static} +String wsUrl
+  {static} +dynamic updateEmail()
+  {static} +dynamic userInSession()
+  {static} +dynamic getUser()
+  {static} +dynamic login()
+  {static} +dynamic register()
+  {static} +dynamic logout()
+  {static} +dynamic usernameExists()
+  {static} +dynamic hasPfp()
+  {static} +dynamic getProfile()
+  {static} +dynamic getProfilePicture()
+  {static} +dynamic getUserQuizzesByToken()
+  {static} +dynamic getUserQuizzesByUsername()
+  {static} +dynamic getQuizzesByUserHistory()
+  {static} +dynamic getQuizzes()
+  {static} +dynamic getQuizzesByFilter()
+  {static} +dynamic createQuiz()
+  {static} +dynamic getQuizCategories()
+  {static} +dynamic getQuizzesByCategory()
+  {static} +dynamic getQuiz()
+  {static} +dynamic checkQuiz()
+  {static} +dynamic playQuiz()
+  {static} +dynamic getMostPopularQuizzes()
+  {static} +dynamic getFriends()
+  {static} +dynamic getPendingFriendRequests()
+  {static} +dynamic sendFriendRequest()
+  {static} +dynamic acceptFriendRequest()
+  {static} +dynamic removeFriend()
+  {static} -Map<String, dynamic> _parseFriendData()
+  {static} +dynamic getCategoryQuizCount()
+  {static} +dynamic deleteQuiz()
+  {static} +dynamic requestPasswordReset()
+  {static} +dynamic verifyToken()
+  {static} +dynamic resetPassword()
+  {static} +dynamic updateUser()
+}
+
+class "client::tools::user.dart::User" {
+  +String? token
+  +dynamic inSession()
+}
+
+class "client::tools::user.dart::UserNotifier" {
+  +String? token
+  +dynamic build()
+  -dynamic _loadToken()
+  +dynamic setToken()
+  +dynamic clearToken()
+  +dynamic inSession()
+  +void logout()
+  +dynamic getProfile()
+}
+
+"riverpod::src::async_notifier.dart::AutoDisposeAsyncNotifier" <|-- "client::tools::user.dart::UserNotifier"
+
+class "client::tools::tools.dart::Tools" {
+  {static} +String formatCreatedAt()
+  {static} +String fixEncoding()
+}
+
+class "client::tools::error_message.dart::ErrorHandler" {
+  {static} +void showOverlayError()
+}
+
+class "client::tools::quiz.dart::Quiz" {
+  +String question
+  +List<Option> options
+  +Map<String, dynamic> toJson()
+  +List<Option> getOptions()
+  +String getQuestion()
+  +void setQuestion()
+  +void setOptions()
+  +void addOption()
+}
+
+class "client::tools::quiz.dart::Option" {
+  +String optionText
+  +bool isCorrect
+  +Map<String, dynamic> toJson()
+  +String getOption()
+  +void setOption()
+  +void setIsCorrect()
+  +bool getIsCorrect()
+}
+
+class "client::tools::audioManager.dart::AudioManager" {
+  -AudioPlayer _audioPlayer
+  -AudioPlayer _audioPlayer1
+  +dynamic playBackgroundAudio()
+  +dynamic playSoundEffect()
+  +dynamic stopAudio()
+  +dynamic dispose()
+}
+
+"client::tools::audioManager.dart::AudioManager" o-- "audioplayers::src::audioplayer.dart::AudioPlayer"
+
+class "client::screens::home.dart::Home" {
+  +HomeState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "client::screens::home.dart::Home"
+
+class "client::screens::home.dart::HomeState" {
+  +RouterNotifier router
+  +UserNotifier user
+  -List<Map<String, dynamic>>? _recentQuizData
+  -List<Map<String, dynamic>>? _popularQuizData
+  +bool loading
+  +void initState()
+  -dynamic _initQuizzes()
+  +Widget build()
+}
+
+"client::screens::home.dart::HomeState" o-- "client::tools::router.dart::RouterNotifier"
+"client::screens::home.dart::HomeState" o-- "client::tools::user.dart::UserNotifier"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "client::screens::home.dart::HomeState"
+
+class "client::screens::profile.dart::Profile" {
+  +ProfileState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "client::screens::profile.dart::Profile"
+
+class "client::screens::profile.dart::ProfileState" {
+  +RouterNotifier router
+  +UserNotifier user
+  +Map<String, dynamic> profile
+  +List<Map<String, dynamic>> quizzes
+  +List<Map<String, dynamic>> history
+  +bool loading
+  +String page
+  +void initState()
+  -void _getProfile()
+  +Widget profileScreen()
+  -void _getQuizzes()
+  -void _getHistory()
+  +Widget build()
+}
+
+"client::screens::profile.dart::ProfileState" o-- "client::tools::router.dart::RouterNotifier"
+"client::screens::profile.dart::ProfileState" o-- "client::tools::user.dart::UserNotifier"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "client::screens::profile.dart::ProfileState"
+
+class "client::screens::forgot_password.dart::ForgotPassword" {
+  +ForgotPasswordScreenState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "client::screens::forgot_password.dart::ForgotPassword"
+
+class "client::screens::forgot_password.dart::ForgotPasswordScreenState" {
+  +TextEditingController emailController
+  +bool loading
+  +String? successMessage
+  +String? errorMessage
+  +RouterNotifier router
+  +void initState()
+  +void toggleLoading()
+  +dynamic handleForgotPassword()
+  +Widget build()
+}
+
+"client::screens::forgot_password.dart::ForgotPasswordScreenState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"client::screens::forgot_password.dart::ForgotPasswordScreenState" o-- "client::tools::router.dart::RouterNotifier"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "client::screens::forgot_password.dart::ForgotPasswordScreenState"
+
+class "client::screens::join.dart::Join" {
+  +JoinState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "client::screens::join.dart::Join"
+
+class "client::screens::join.dart::JoinState" {
+  +TextEditingController codeController
+  +bool loading
+  +RouterNotifier router
+  +void initState()
+  +void onPressed()
+  +Widget build()
+}
+
+"client::screens::join.dart::JoinState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"client::screens::join.dart::JoinState" o-- "client::tools::router.dart::RouterNotifier"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "client::screens::join.dart::JoinState"
+
+class "client::screens::login.dart::LoginScreen" {
+  +LoginScreenState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "client::screens::login.dart::LoginScreen"
+
+class "client::screens::login.dart::LoginScreenState" {
+  +TextEditingController emailController
+  +TextEditingController passwordController
+  +bool rememberMe
+  +FocusNode passwordFocusNode
+  +RouterNotifier router
+  +UserNotifier user
+  +bool loading
+  +void dispose()
+  +void initState()
+  -dynamic _checkUserSession()
+  +void toggleLoading()
+  +dynamic handleLogin()
+  +Widget build()
+}
+
+"client::screens::login.dart::LoginScreenState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"client::screens::login.dart::LoginScreenState" o-- "flutter::src::widgets::focus_manager.dart::FocusNode"
+"client::screens::login.dart::LoginScreenState" o-- "client::tools::router.dart::RouterNotifier"
+"client::screens::login.dart::LoginScreenState" o-- "client::tools::user.dart::UserNotifier"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "client::screens::login.dart::LoginScreenState"
+
+class "client::screens::register.dart::Register" {
+  +RegisterScreenState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "client::screens::register.dart::Register"
+
+class "client::screens::register.dart::RegisterScreenState" {
+  +RouterNotifier router
+  +UserNotifier user
+  +TextEditingController usernameController
+  +TextEditingController emailController
+  +TextEditingController passwordController
+  +TextEditingController confirmPasswordController
+  +bool terms
+  +FocusNode emailFocusNode
+  +FocusNode passwordFocusNode
+  +FocusNode confirmPasswordFocusNode
+  +bool loading
+  +void dispose()
+  +void initState()
+  -dynamic _checkUserSession()
+  +dynamic onPressed()
+  +void toggleLoading()
+  +Widget build()
+}
+
+"client::screens::register.dart::RegisterScreenState" o-- "client::tools::router.dart::RouterNotifier"
+"client::screens::register.dart::RegisterScreenState" o-- "client::tools::user.dart::UserNotifier"
+"client::screens::register.dart::RegisterScreenState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"client::screens::register.dart::RegisterScreenState" o-- "flutter::src::widgets::focus_manager.dart::FocusNode"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "client::screens::register.dart::RegisterScreenState"
+
+class "client::screens::quiz::quiz_solo::quiz_question_solo.dart::QuizQuestionSolo" {
+  +int quizId
+  +String questionText
+  +List<Map<String, dynamic>> options
+  +Function onOptionTap
+  +Function onNextTap
+  +int totalQuestions
+  +int currentQuestionIndex
+  +QuizQuestionSoloState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "client::screens::quiz::quiz_solo::quiz_question_solo.dart::QuizQuestionSolo"
+
+class "client::screens::quiz::quiz_solo::quiz_question_solo.dart::QuizQuestionSoloState" {
+  +String? selectedAnswer
+  +Widget build()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "client::screens::quiz::quiz_solo::quiz_question_solo.dart::QuizQuestionSoloState"
+
+class "client::screens::quiz::quiz_solo::quiz_result_solo.dart::QuizResultSolo" {
+  +Map<String, dynamic> quizTaken
+  +Map<String, dynamic> quizData
+  +String token
+  +int totalQuestions
+  +Function setScore
+  +QuizResultSoloState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "client::screens::quiz::quiz_solo::quiz_result_solo.dart::QuizResultSolo"
+
+class "client::screens::quiz::quiz_solo::quiz_result_solo.dart::QuizResultSoloState" {
+  +RouterNotifier router
+  +bool loading
+  +Map<String, dynamic> quizScore
+  +void initState()
+  -dynamic _initCheck()
+  -dynamic _initPost()
+  +String performanceComment()
+  +Widget build()
+}
+
+"client::screens::quiz::quiz_solo::quiz_result_solo.dart::QuizResultSoloState" o-- "client::tools::router.dart::RouterNotifier"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "client::screens::quiz::quiz_solo::quiz_result_solo.dart::QuizResultSoloState"
+
+class "client::screens::quiz::quiz_game_solo.dart::QuizGameSolo" {
+  +QuizGameSoloState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "client::screens::quiz::quiz_game_solo.dart::QuizGameSolo"
+
+class "client::screens::quiz::quiz_game_solo.dart::QuizGameSoloState" {
+  +RouterNotifier router
+  +UserNotifier user
+  +AudioManager audioManager
+  +Map<String, dynamic>? quizData
+  +Map<String, dynamic> quizTaken
+  +Widget? counter
+  +int currentQuestionIndex
+  +int duration
+  +DateTime? questionStartTime
+  +String page
+  +AnimationController? scoreAnimationController
+  +Animation<int>? scoreAnimation
+  +bool loading
+  +void initState()
+  +void dispose()
+  +void setScore()
+  -void _handleOptionTap()
+  -void _handleNextClick()
+  -Widget _getPage()
+  +Widget build()
+}
+
+"client::screens::quiz::quiz_game_solo.dart::QuizGameSoloState" o-- "client::tools::router.dart::RouterNotifier"
+"client::screens::quiz::quiz_game_solo.dart::QuizGameSoloState" o-- "client::tools::user.dart::UserNotifier"
+"client::screens::quiz::quiz_game_solo.dart::QuizGameSoloState" o-- "client::tools::audioManager.dart::AudioManager"
+"client::screens::quiz::quiz_game_solo.dart::QuizGameSoloState" o-- "flutter::src::widgets::framework.dart::Widget"
+"client::screens::quiz::quiz_game_solo.dart::QuizGameSoloState" o-- "flutter::src::animation::animation_controller.dart::AnimationController"
+"client::screens::quiz::quiz_game_solo.dart::QuizGameSoloState" o-- "flutter::src::animation::animation.dart::Animation<int>"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "client::screens::quiz::quiz_game_solo.dart::QuizGameSoloState"
+"flutter::src::widgets::ticker_provider.dart::TickerProviderStateMixin" <|-- "client::screens::quiz::quiz_game_solo.dart::QuizGameSoloState"
+
+class "client::screens::quiz::quiz_game_socket.dart::QuizGameSocket" {
+  +QuizGameSocketState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "client::screens::quiz::quiz_game_socket.dart::QuizGameSocket"
+
+class "client::screens::quiz::quiz_game_socket.dart::QuizGameSocketState" {
+  +RouterNotifier router
+  +UserNotifier user
+  +StompClient? stompClient
+  +String username
+  +String thumbnail
+  +String title
+  +int timer
+  +String state
+  +int questionNumber
+  +bool isLoading
+  +String message
+  +AnimationController scoreAnimationController
+  +Map<String, dynamic> values
+  +void initState()
+  -dynamic _initUsername()
+  -void _initStates()
+  -void _connectToSocket()
+  -void _onConnect()
+  -dynamic _handleQuizTimer()
+  -dynamic _handleNext()
+  -dynamic _handleAnswer()
+  -Widget _displaySelectedScene()
+  +Animation<int> getScoreAnimationController()
+  +Widget build()
+}
+
+"client::screens::quiz::quiz_game_socket.dart::QuizGameSocketState" o-- "client::tools::router.dart::RouterNotifier"
+"client::screens::quiz::quiz_game_socket.dart::QuizGameSocketState" o-- "client::tools::user.dart::UserNotifier"
+"client::screens::quiz::quiz_game_socket.dart::QuizGameSocketState" o-- "stomp_dart_client::src::stomp.dart::StompClient"
+"client::screens::quiz::quiz_game_socket.dart::QuizGameSocketState" o-- "flutter::src::animation::animation_controller.dart::AnimationController"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "client::screens::quiz::quiz_game_socket.dart::QuizGameSocketState"
+"flutter::src::widgets::ticker_provider.dart::TickerProviderStateMixin" <|-- "client::screens::quiz::quiz_game_socket.dart::QuizGameSocketState"
+
+class "client::screens::quiz::create_quiz.dart::CreateQuiz" {
+  +CreateQuizState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "client::screens::quiz::create_quiz.dart::CreateQuiz"
+
+class "client::screens::quiz::create_quiz.dart::CreateQuizState" {
+  +RouterNotifier router
+  +UserNotifier user
+  -int _selectedIndex
+  +bool loading
+  +File? imageFile
+  +List<String> categories
+  +List<String> quizCategories
+  +List<Quiz> questions
+  +TextEditingController titleController
+  +TextEditingController descriptionController
+  +TextEditingController timeController
+  +TextEditingController questionController
+  +List<TextEditingController> controllers
+  +void initState()
+  -dynamic _initCategories()
+  +void dispose()
+  +void showTitlePopup()
+  +void showDescriptionPopup()
+  +void showTimePopup()
+  -bool _isValidTime()
+  +void showCategoriesPopup()
+  +void changeSelectedQuestion()
+  +void addOption()
+  -void _deleteQuestion()
+  -void _deleteOption()
+  +void addNewQuestion()
+  +dynamic addImage()
+  +void createQuiz()
+  +Widget build()
+}
+
+"client::screens::quiz::create_quiz.dart::CreateQuizState" o-- "client::tools::router.dart::RouterNotifier"
+"client::screens::quiz::create_quiz.dart::CreateQuizState" o-- "client::tools::user.dart::UserNotifier"
+"client::screens::quiz::create_quiz.dart::CreateQuizState" o-- "dart::io::File"
+"client::screens::quiz::create_quiz.dart::CreateQuizState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "client::screens::quiz::create_quiz.dart::CreateQuizState"
+
+class "client::screens::quiz::quiz_lobby.dart::QuizLobby" {
+  +QuizLobbyState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "client::screens::quiz::quiz_lobby.dart::QuizLobby"
+
+class "client::screens::quiz::quiz_lobby.dart::QuizLobbyState" {
+  +RouterNotifier router
+  +UserNotifier user
+  +StompClient? stompClient
+  +String quizToken
+  +String? leader
+  +List<String> players
+  +Completer<void> quizIdCompleter
+  +String username
+  +String quizName
+  +String quizId
+  +int quizTimer
+  +int questionCount
+  +void initState()
+  -dynamic _initUsername()
+  +void dispose()
+  -void _connect()
+  -dynamic _onConnect()
+  -void _subscribeToCreate()
+  -void _subscribeToJoin()
+  -dynamic _createQuiz()
+  -void _joinQuiz()
+  -void _startQuiz()
+  -void _leaveQuiz()
+  -void _changeQuiz()
+  -void _changeTimer()
+  +void changeTimerClick()
+  +void changeQuizClick()
+  +Widget build()
+}
+
+"client::screens::quiz::quiz_lobby.dart::QuizLobbyState" o-- "client::tools::router.dart::RouterNotifier"
+"client::screens::quiz::quiz_lobby.dart::QuizLobbyState" o-- "client::tools::user.dart::UserNotifier"
+"client::screens::quiz::quiz_lobby.dart::QuizLobbyState" o-- "stomp_dart_client::src::stomp.dart::StompClient"
+"client::screens::quiz::quiz_lobby.dart::QuizLobbyState" o-- "dart::async::Completer<void>"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "client::screens::quiz::quiz_lobby.dart::QuizLobbyState"
+
+class "client::screens::quiz::quiz_message_handler.dart::QuizMessageHandler" {
+  {static} +String handleLobbyMessages()
+  {static} +Map<String, dynamic> handleGameMessages()
+}
+
+class "client::screens::quiz::quiz.dart::QuizScreen" {
+  +QuizScreenState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "client::screens::quiz::quiz.dart::QuizScreen"
+
+class "client::screens::quiz::quiz.dart::QuizScreenState" {
+  +RouterNotifier router
+  +UserNotifier user
+  +bool isLoading
+  +Map<String, dynamic> quiz
+  +List<dynamic> createdAt
+  +void initState()
+  -dynamic _getQuiz()
+  +Widget build()
+}
+
+"client::screens::quiz::quiz.dart::QuizScreenState" o-- "client::tools::router.dart::RouterNotifier"
+"client::screens::quiz::quiz.dart::QuizScreenState" o-- "client::tools::user.dart::UserNotifier"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "client::screens::quiz::quiz.dart::QuizScreenState"
+
+class "client::screens::quiz::socket::quiz_socket_question.dart::QuizSocketQuestion" {
+  +RouterNotifier router
+  +UserNotifier user
+  +Map<String, dynamic> values
+  +Function onClick
+  +Function onTimer
+  +QuizSocketQuestionState createState()
+}
+
+"client::screens::quiz::socket::quiz_socket_question.dart::QuizSocketQuestion" o-- "client::tools::router.dart::RouterNotifier"
+"client::screens::quiz::socket::quiz_socket_question.dart::QuizSocketQuestion" o-- "client::tools::user.dart::UserNotifier"
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "client::screens::quiz::socket::quiz_socket_question.dart::QuizSocketQuestion"
+
+class "client::screens::quiz::socket::quiz_socket_question.dart::QuizSocketQuestionState" {
+  +RouterNotifier router
+  +UserNotifier user
+  +bool isLoading
+  +bool isAnswered
+  +Map<String, dynamic> answer
+  +AudioManager? audioManager
+  +bool showAnswer
+  +String thumbnail
+  +String title
+  +int counter
+  +String state
+  +Map<String, dynamic> questionData
+  +void initState()
+  +void dispose()
+  -void _initStates()
+  +Widget build()
+}
+
+"client::screens::quiz::socket::quiz_socket_question.dart::QuizSocketQuestionState" o-- "client::tools::router.dart::RouterNotifier"
+"client::screens::quiz::socket::quiz_socket_question.dart::QuizSocketQuestionState" o-- "client::tools::user.dart::UserNotifier"
+"client::screens::quiz::socket::quiz_socket_question.dart::QuizSocketQuestionState" o-- "client::tools::audioManager.dart::AudioManager"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "client::screens::quiz::socket::quiz_socket_question.dart::QuizSocketQuestionState"
+
+class "client::screens::quiz::socket::quiz_socket_answers.dart::QuizSocketAnswers" {
+  +RouterNotifier router
+  +UserNotifier user
+  +Map<String, dynamic> values
+  +Function onTimer
+  +QuizSocketAnswersState createState()
+}
+
+"client::screens::quiz::socket::quiz_socket_answers.dart::QuizSocketAnswers" o-- "client::tools::router.dart::RouterNotifier"
+"client::screens::quiz::socket::quiz_socket_answers.dart::QuizSocketAnswers" o-- "client::tools::user.dart::UserNotifier"
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "client::screens::quiz::socket::quiz_socket_answers.dart::QuizSocketAnswers"
+
+class "client::screens::quiz::socket::quiz_socket_answers.dart::QuizSocketAnswersState" {
+  +RouterNotifier router
+  +UserNotifier user
+  +bool isLoading
+  +bool isAnswered
+  +AudioManager? audioManager
+  +bool showAnswer
+  +String thumbnail
+  +String title
+  +int counter
+  +String state
+  +Map<String, dynamic> questionData
+  +Map<String, dynamic> answer
+  +void initState()
+  -void _initStates()
+  -void _setAnswer()
+  +void dispose()
+  +Widget build()
+}
+
+"client::screens::quiz::socket::quiz_socket_answers.dart::QuizSocketAnswersState" o-- "client::tools::router.dart::RouterNotifier"
+"client::screens::quiz::socket::quiz_socket_answers.dart::QuizSocketAnswersState" o-- "client::tools::user.dart::UserNotifier"
+"client::screens::quiz::socket::quiz_socket_answers.dart::QuizSocketAnswersState" o-- "client::tools::audioManager.dart::AudioManager"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "client::screens::quiz::socket::quiz_socket_answers.dart::QuizSocketAnswersState"
+
+class "client::screens::quiz::socket::quiz_socket_score.dart::ScoreScreen" {
+  +RouterNotifier router
+  +UserNotifier user
+  +Map<String, dynamic> values
+  +String username
+  +ScoreState createState()
+}
+
+"client::screens::quiz::socket::quiz_socket_score.dart::ScoreScreen" o-- "client::tools::router.dart::RouterNotifier"
+"client::screens::quiz::socket::quiz_socket_score.dart::ScoreScreen" o-- "client::tools::user.dart::UserNotifier"
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "client::screens::quiz::socket::quiz_socket_score.dart::ScoreScreen"
+
+class "client::screens::quiz::socket::quiz_socket_score.dart::ScoreState" {
+  +int quizId
+  +String title
+  +String token
+  +List<Map<String, dynamic>> players
+  +AudioManager? audioManager
+  +void initState()
+  +void dispose()
+  -void _initializeValues()
+  +Widget build()
+}
+
+"client::screens::quiz::socket::quiz_socket_score.dart::ScoreState" o-- "client::tools::audioManager.dart::AudioManager"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "client::screens::quiz::socket::quiz_socket_score.dart::ScoreState"
+
+class "client::screens::category.dart::Category" {
+  +ConsumerState<ConsumerStatefulWidget> createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "client::screens::category.dart::Category"
+
+class "client::screens::category.dart::CategoryState" {
+  +RouterNotifier router
+  +bool loading
+  +List<Map<String, dynamic>> quizzes
+  +List<String> allCategories
+  +String? selectedCategory
+  +void initState()
+  -dynamic _fetchCategories()
+  -dynamic _initiateQuizzes()
+  +Widget build()
+}
+
+"client::screens::category.dart::CategoryState" o-- "client::tools::router.dart::RouterNotifier"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "client::screens::category.dart::CategoryState"
+
+class "client::screens::reset_password.dart::ResetPassword" {
+  +String token
+  +RouterNotifier router
+  +Widget build()
+}
+
+"client::screens::reset_password.dart::ResetPassword" o-- "client::tools::router.dart::RouterNotifier"
+"flutter_riverpod::src::consumer.dart::ConsumerWidget" <|-- "client::screens::reset_password.dart::ResetPassword"
+
+class "client::screens::path_search.dart::PathSearch" {
+  +Widget build()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerWidget" <|-- "client::screens::path_search.dart::PathSearch"
+
+class "client::screens::jan.dart::Jan" {
+  +Widget build()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerWidget" <|-- "client::screens::jan.dart::Jan"
+
+class "client::screens::profile::main_profile.dart::MainProfile" {
+  +List<Map<String, dynamic>> quizzes
+  +List<Map<String, dynamic>> history
+  +MainProfileState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "client::screens::profile::main_profile.dart::MainProfile"
+
+class "client::screens::profile::main_profile.dart::MainProfileState" {
+  +RouterNotifier router
+  +UserNotifier user
+  +void initState()
+  +Widget build()
+}
+
+"client::screens::profile::main_profile.dart::MainProfileState" o-- "client::tools::router.dart::RouterNotifier"
+"client::screens::profile::main_profile.dart::MainProfileState" o-- "client::tools::user.dart::UserNotifier"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "client::screens::profile::main_profile.dart::MainProfileState"
+
+class "client::screens::profile::settings.dart::Settings" {
+  +SettingsState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "client::screens::profile::settings.dart::Settings"
+
+class "client::screens::profile::settings.dart::SettingsState" {
+  +RouterNotifier router
+  +UserNotifier user
+  +bool loading
+  +String newEmail
+  +bool isUpdatingEmail
+  +String newUsername
+  +bool isUpdatingUsername
+  +String oldPassword
+  +String newPassword
+  +String confirmPassword
+  +bool isUpdatingPassword
+  +Map<String, dynamic> profile
+  +void initState()
+  -dynamic _getProfile()
+  -dynamic _updateEmail()
+  -dynamic _updateUsername()
+  -dynamic _updatePassword()
+  +Widget build()
+}
+
+"client::screens::profile::settings.dart::SettingsState" o-- "client::tools::router.dart::RouterNotifier"
+"client::screens::profile::settings.dart::SettingsState" o-- "client::tools::user.dart::UserNotifier"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "client::screens::profile::settings.dart::SettingsState"
+
+class "client::screens::friends.dart::Friends" {
+  +FriendsState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "client::screens::friends.dart::Friends"
+
+class "client::screens::friends.dart::FriendsState" {
+  +RouterNotifier router
+  +UserNotifier user
+  -List<Map<String, dynamic>>? _friendsData
+  -List<Map<String, dynamic>>? _pendingRequestsData
+  +bool loading
+  -TextEditingController _searchController
+  +void initState()
+  +Widget buildAvatar()
+  -dynamic _initFriends()
+  -dynamic _sendFriendRequest()
+  -dynamic _acceptFriendRequest()
+  -dynamic _removeFriend()
+  -Widget _buildSearchBar()
+  -Widget _buildFriendsList()
+  +Widget build()
+  +void dispose()
+}
+
+"client::screens::friends.dart::FriendsState" o-- "client::tools::router.dart::RouterNotifier"
+"client::screens::friends.dart::FriendsState" o-- "client::tools::user.dart::UserNotifier"
+"client::screens::friends.dart::FriendsState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "client::screens::friends.dart::FriendsState"
+
+class "client::screens::categories.dart::Categories" {
+  +Widget build()
+  -IconData _getCategoryIcon()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerWidget" <|-- "client::screens::categories.dart::Categories"
+
+class "client::screens::token_verification.dart::TokenVerification" {
+  +String email
+  +RouterNotifier router
+  +TokenVerificationState createState()
+}
+
+"client::screens::token_verification.dart::TokenVerification" o-- "client::tools::router.dart::RouterNotifier"
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "client::screens::token_verification.dart::TokenVerification"
+
+class "client::screens::token_verification.dart::TokenVerificationState" {
+  +List<TextEditingController> tokenControllers
+  +bool loading
+  +String? errorMessage
+  +void toggleLoading()
+  +String getEnteredToken()
+  +dynamic verifyToken()
+  +Widget build()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "client::screens::token_verification.dart::TokenVerificationState"
+
+class "client::main.dart::MainApp" {
+  +ConsumerState<MainApp> createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "client::main.dart::MainApp"
+
+class "client::main.dart::_MainAppState" {
+  +Widget build()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "client::main.dart::_MainAppState"
+
+class "client::main.dart::ErrorScreen" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "client::main.dart::ErrorScreen"
+
+class "client::elements::custom_theme_extension.dart::CustomThemeExtension" {
+  +Color primaryTextColor
+  +CustomThemeExtension copyWith()
+  +CustomThemeExtension lerp()
+}
+
+"client::elements::custom_theme_extension.dart::CustomThemeExtension" o-- "dart::ui::Color"
+"flutter::src::material::theme_data.dart::ThemeExtension" <|-- "client::elements::custom_theme_extension.dart::CustomThemeExtension"
+
+class "client::elements::card.dart::CategoryCard" {
+  +void Function()? onTap
+  +IconData icon
+  +String title
+  +int quizCount
+  +Widget build()
+}
+
+"client::elements::card.dart::CategoryCard" o-- "flutter::src::gestures::tap.dart::void Function()"
+"client::elements::card.dart::CategoryCard" o-- "flutter::src::widgets::icon_data.dart::IconData"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "client::elements::card.dart::CategoryCard"
+
+class "client::elements::button.dart::SmallTextButton" {
+  +String text
+  +void Function() onPressed
+  +bool loading
+  +Widget build()
+}
+
+"client::elements::button.dart::SmallTextButton" o-- "dart::ui::void Function()"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "client::elements::button.dart::SmallTextButton"
+
+class "client::elements::button.dart::LargeImageButton" {
+  +String text
+  +void Function() onPressed
+  +String icon
+  +Widget build()
+}
+
+"client::elements::button.dart::LargeImageButton" o-- "dart::ui::void Function()"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "client::elements::button.dart::LargeImageButton"
+
+class "client::elements::button.dart::IconTextButton" {
+  +IconData icon
+  +void Function() onPressed
+  +String text
+  +bool active
+  +Widget build()
+}
+
+"client::elements::button.dart::IconTextButton" o-- "flutter::src::widgets::icon_data.dart::IconData"
+"client::elements::button.dart::IconTextButton" o-- "dart::ui::void Function()"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "client::elements::button.dart::IconTextButton"
+
+class "client::elements::button.dart::BigIconButton" {
+  +IconData icon
+  +void Function() onPressed
+  +int? height
+  +int? width
+  +Widget build()
+}
+
+"client::elements::button.dart::BigIconButton" o-- "flutter::src::widgets::icon_data.dart::IconData"
+"client::elements::button.dart::BigIconButton" o-- "dart::ui::void Function()"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "client::elements::button.dart::BigIconButton"
+
+class "client::elements::button.dart::SizedTextButton" {
+  +String text
+  +void Function() onPressed
+  +bool loading
+  +double height
+  +double? width
+  +TextStyle textStyle
+  +bool inversed
+  +Icon? icon
+  +Widget build()
+}
+
+"client::elements::button.dart::SizedTextButton" o-- "dart::ui::void Function()"
+"client::elements::button.dart::SizedTextButton" o-- "flutter::src::painting::text_style.dart::TextStyle"
+"client::elements::button.dart::SizedTextButton" o-- "flutter::src::widgets::icon.dart::Icon"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "client::elements::button.dart::SizedTextButton"
+
+class "client::elements::quiz_post.dart::QuizPost" {
+  +int id
+  +String profilePicture
+  +String title
+  +String username
+  +List<dynamic> createdAt
+  +Widget build()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerWidget" <|-- "client::elements::quiz_post.dart::QuizPost"
+
+class "client::elements::feed_category.dart::FeedCategory" {
+  +String category
+  +List<Map<String, dynamic>> quizzes
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "client::elements::feed_category.dart::FeedCategory"
+
+class "client::elements::input.dart::Input" {
+  +String labelText
+  +TextEditingController? controller
+  +bool obscureText
+  +TextInputType? keyboardType
+  +void Function(String)? onChanged
+  +void Function(String)? onReturn
+  +FocusNode? focusNode
+  +IconData? icon
+  +bool enabled
+  +Widget build()
+}
+
+"client::elements::input.dart::Input" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"client::elements::input.dart::Input" o-- "flutter::src::services::text_input.dart::TextInputType"
+"client::elements::input.dart::Input" o-- "flutter::src::foundation::basic_types.dart::void Function(String)"
+"client::elements::input.dart::Input" o-- "null::void Function(String)"
+"client::elements::input.dart::Input" o-- "flutter::src::widgets::focus_manager.dart::FocusNode"
+"client::elements::input.dart::Input" o-- "flutter::src::widgets::icon_data.dart::IconData"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "client::elements::input.dart::Input"
+
+class "client::elements::counter.dart::Counter" {
+  +void Function() onCountdownComplete
+  +int duration
+  +double? marginTop
+  +double width
+  +double height
+  +Color? color
+  +CounterState createState()
+}
+
+"client::elements::counter.dart::Counter" o-- "dart::ui::void Function()"
+"client::elements::counter.dart::Counter" o-- "dart::ui::Color"
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "client::elements::counter.dart::Counter"
+
+class "client::elements::counter.dart::CounterState" {
+  -AnimationController _controller
+  -Animation<double> _progressAnimation
+  -int _counter
+  +void initState()
+  +void didUpdateWidget()
+  -void _initializeCounter()
+  +void dispose()
+  +Widget build()
+}
+
+"client::elements::counter.dart::CounterState" o-- "flutter::src::animation::animation_controller.dart::AnimationController"
+"client::elements::counter.dart::CounterState" o-- "flutter::src::animation::animation.dart::Animation<double>"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "client::elements::counter.dart::CounterState"
+"flutter::src::widgets::ticker_provider.dart::SingleTickerProviderStateMixin" <|-- "client::elements::counter.dart::CounterState"
+
+class "client::elements::counter.dart::CirclePainter" {
+  +double progress
+  +Color middleCircleColor
+  +void paint()
+  +bool shouldRepaint()
+}
+
+"client::elements::counter.dart::CirclePainter" o-- "dart::ui::Color"
+"flutter::src::rendering::custom_paint.dart::CustomPainter" <|-- "client::elements::counter.dart::CirclePainter"
+
+class "client::elements::loading.dart::LogoLoading" {
+  {static} +String path
+  +double size
+  +LogoLoadingState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "client::elements::loading.dart::LogoLoading"
+
+class "client::elements::loading.dart::LogoLoadingState" {
+  -AnimationController _controller
+  -Animation<double> _animation
+  +void initState()
+  +void dispose()
+  +Widget build()
+}
+
+"client::elements::loading.dart::LogoLoadingState" o-- "flutter::src::animation::animation_controller.dart::AnimationController"
+"client::elements::loading.dart::LogoLoadingState" o-- "flutter::src::animation::animation.dart::Animation<double>"
+"flutter::src::widgets::framework.dart::State" <|-- "client::elements::loading.dart::LogoLoadingState"
+"flutter::src::widgets::ticker_provider.dart::SingleTickerProviderStateMixin" <|-- "client::elements::loading.dart::LogoLoadingState"
+
+class "client::elements::profile_picture.dart::ProfilePicture" {
+  +String url
+  +double size
+  +BoxFit? fit
+  +Widget build()
+}
+
+"client::elements::profile_picture.dart::ProfilePicture" o-- "flutter::src::painting::box_fit.dart::BoxFit"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "client::elements::profile_picture.dart::ProfilePicture"
+
+class "client::elements::bottom_navbar.dart::BottomNavbar" {
+  +String path
+  +void onPressed()
+  +Widget build()
+} 
+
+"flutter_riverpod::src::consumer.dart::ConsumerWidget" <|-- "client::elements::bottom_navbar.dart::BottomNavbar"
+
+class "client::dummy_data.dart::DummyData" {
+  {static} +String profilePicture
+}
+
+class "client::app.dart::App" {
+  +Widget build()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerWidget" <|-- "client::app.dart::App"
+
+
+@enduml
