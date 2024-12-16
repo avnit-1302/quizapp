@@ -255,7 +255,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Enter new timer in seconds'),
+              const Text('Enter new timer in seconds pr question'),
               const SizedBox(height: 8),
               TextField(
                 keyboardType: TextInputType.number,
