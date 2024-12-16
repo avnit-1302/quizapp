@@ -20,6 +20,7 @@ class CategoryState extends ConsumerState<Category> {
 
   late List<Map<String, dynamic>> quizzes;
   List<String> allCategories = [];
+  List<int> quizCounts = [];
   String? selectedCategory;
 
   @override
@@ -28,19 +29,24 @@ class CategoryState extends ConsumerState<Category> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       router = ref.read(routerProvider.notifier);
 
-      _fetchCategories();
+      _fetchCategoriesWithCounts();
     });
   }
 
-  /// Fetches all available categories from the server.
+  /// Fetches all categories along with their respective quiz counts.
   ///
   /// Sets the initial category to the one provided in the router or the first available category.
   /// Then fetches quizzes for the selected category.
-  Future<void> _fetchCategories() async {
+  Future<void> _fetchCategoriesWithCounts() async {
     try {
       List<String> categories = await ApiHandler.getQuizCategories();
+      List<int> counts = await Future.wait(
+        categories.map((category) => ApiHandler.getCategoryQuizCount(category)),
+      );
+
       setState(() {
         allCategories = categories;
+        quizCounts = counts;
         selectedCategory = router.getValues?["category"] ?? categories.first;
         _initiateQuizzes();
       });
@@ -48,7 +54,7 @@ class CategoryState extends ConsumerState<Category> {
       setState(() {
         loading = false;
       });
-      print("Error fetching categories: $e");
+      print("Error fetching categories or counts: $e");
     }
   }
 
@@ -95,10 +101,12 @@ class CategoryState extends ConsumerState<Category> {
                     _initiateQuizzes();
                   }
                 },
-                items: allCategories.map((category) {
+                items: allCategories.asMap().entries.map((entry) {
+                  final category = entry.value;
+                  final count = quizCounts[entry.key];
                   return DropdownMenuItem(
                     value: category,
-                    child: Text(category),
+                    child: Text("$category ($count)"),
                   );
                 }).toList(),
                 isExpanded: true,
