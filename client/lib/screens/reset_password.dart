@@ -35,6 +35,9 @@ class ResetPassword extends ConsumerWidget {
 
         // Navigate to the login screen and clear navigation history
         if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Successfully changed password")),
+        );
           Navigator.pop(context);
           router.setPath(context, "login");
         }
