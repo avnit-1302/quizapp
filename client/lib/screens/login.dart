@@ -1,6 +1,7 @@
 import 'package:client/elements/input.dart';
 import 'package:client/elements/button.dart';
 import 'package:client/tools/api_handler.dart';
+import 'package:client/tools/error_message.dart';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
@@ -82,6 +83,8 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
       }
     } else {
       print("Error");
+      ErrorHandler.showOverlayError(
+          context, "Your username or password was wrong");
     }
 
     toggleLoading();
