@@ -33,7 +33,7 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
       Option(optionText: ""),
     ])
   ];
-  
+
   // Controllers for managing user input
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
@@ -179,55 +179,47 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
   }
 
   void showTimePopup(ThemeData theme) {
+    List<int> timeOptions = [for (int i = 10; i <= 120; i += 5) i];
+
+    int selectedTime = timeOptions.first;
+
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text("Seconds to answer each question"),
-          content: Theme(
-            data: Theme.of(context).copyWith(
-              textSelectionTheme: TextSelectionThemeData(
-                cursorColor: theme.primaryColor,
-                selectionColor: theme.primaryColor,
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text("Seconds to answer each question"),
+              content: DropdownButton<int>(
+                isExpanded: true,
+                value: selectedTime,
+                onChanged: (int? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      selectedTime = newValue;
+                    });
+                  }
+                },
+                items: timeOptions.map<DropdownMenuItem<int>>((int value) {
+                  return DropdownMenuItem<int>(
+                    value: value,
+                    child: Text("$value seconds"),
+                  );
+                }).toList(),
               ),
-            ),
-            child: TextField(
-              controller: timeController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                hintText: "Enter time in seconds",
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.black,
-                    width: 2.0,
-                  ),
-                  borderRadius: BorderRadius.circular(8.0),
+              actions: [
+                SmallTextButton(
+                  text: "Save",
+                  onPressed: () {
+                    setState(() {
+                      timeController.text = selectedTime.toString();
+                    });
+                    Navigator.pop(context);
+                  },
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: theme.primaryColor,
-                    width: 2.0,
-                  ),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                errorText:
-                    _isValidTime() ? null : "Please enter a valid number",
-              ),
-              onChanged: (value) {
-                (context as Element).markNeedsBuild();
-              },
-            ),
-          ),
-          actions: [
-            SmallTextButton(
-              text: "Save",
-              onPressed: () {
-                if (_isValidTime()) {
-                  Navigator.pop(context);
-                }
-              },
-            ),
-          ],
+              ],
+            );
+          },
         );
       },
     );
@@ -396,7 +388,8 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
 
         for (int i = 0; i < controllers.length; i++) {
           if (i < questions[_selectedIndex].options.length) {
-            controllers[i].text = questions[_selectedIndex].options[i].optionText;
+            controllers[i].text =
+                questions[_selectedIndex].options[i].optionText;
           } else {
             controllers[i].clear();
           }
@@ -484,11 +477,10 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
       setState(() {
         loading = false;
       });
-      ErrorHandler.showOverlayError(context, "Title must be less than 50 chars");
+      ErrorHandler.showOverlayError(
+          context, "Title must be less than 50 chars");
       return;
     }
-
-
 
     if (descriptionController.text.isEmpty) {
       setState(() {
@@ -529,7 +521,8 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
       setState(() {
         loading = false;
       });
-      ErrorHandler.showOverlayError(context, "Time must be less than 120 seconds");
+      ErrorHandler.showOverlayError(
+          context, "Time must be less than 120 seconds");
       return;
     }
 
