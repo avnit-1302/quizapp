@@ -34,47 +34,76 @@ class Categories extends ConsumerWidget {
             ),
             const SizedBox(height: 16.0),
 
+            // Dropdown Menu with Quiz Counts
             FutureBuilder<List<String>>(
               future: ApiHandler.getQuizCategories(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
+              builder: (context, categorySnapshot) {
+                if (categorySnapshot.connectionState ==
+                    ConnectionState.waiting) {
                   return const CircularProgressIndicator();
                 }
-                if (snapshot.hasError) {
+                if (categorySnapshot.hasError) {
                   return const Text("Error loading categories");
                 }
 
-                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                if (!categorySnapshot.hasData ||
+                    categorySnapshot.data!.isEmpty) {
                   return const Text("No categories available");
                 }
 
-                final allCategories = snapshot.data!;
-                return DropdownButton<String>(
-                  value: selectedCategory,
-                  onChanged: (newCategory) {
-                    if (newCategory != null) {
-                      selectedCategory = newCategory;
-                      router.setPath(context, "category",
-                          values: {"category": newCategory});
-                    }
-                  },
-                  items: [
-                    const DropdownMenuItem<String>(
-                      value: null,
-                      child: Text("Choose a Category"),
+                final allCategories = categorySnapshot.data!;
+
+                // Fetch counts for all categories
+                return FutureBuilder<List<int>>(
+                  future: Future.wait(
+                    allCategories.map(
+                      (category) => ApiHandler.getCategoryQuizCount(category),
                     ),
-                    ...allCategories.map<DropdownMenuItem<String>>(
-                      (String category) {
-                        return DropdownMenuItem<String>(
-                          value: category,
-                          child: Text(category),
-                        );
+                  ),
+                  builder: (context, countSnapshot) {
+                    if (countSnapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    }
+                    if (countSnapshot.hasError) {
+                      return const Text("Error loading quiz counts");
+                    }
+
+                    final quizCounts = countSnapshot.data!;
+
+                    return DropdownButton<String>(
+                      value: selectedCategory,
+                      onChanged: (newCategory) {
+                        if (newCategory != null) {
+                          selectedCategory = newCategory;
+                          router.setPath(context, "category",
+                              values: {"category": newCategory});
+                        }
                       },
-                    ).toList(),
-                  ],
-                  isExpanded: true,
-                  icon: const Icon(Icons.arrow_drop_down),
-                  hint: const Text("Select Category"),
+                      items: [
+                        const DropdownMenuItem<String>(
+                          value: null,
+                          child: Text("Choose a Category"),
+                        ),
+                        ...allCategories
+                            .asMap()
+                            .entries
+                            .map<DropdownMenuItem<String>>(
+                          (entry) {
+                            final category = entry.value;
+                            final count = quizCounts[entry.key];
+                            return DropdownMenuItem<String>(
+                              value: category,
+                              child: Text("$category ($count)"),
+                            );
+                          },
+                        ).toList(),
+                      ],
+                      isExpanded: true,
+                      icon: const Icon(Icons.arrow_drop_down),
+                      hint: const Text("Select Category"),
+                    );
+                  },
                 );
               },
             ),
@@ -85,8 +114,7 @@ class Categories extends ConsumerWidget {
               child: FutureBuilder<List<int>>(
                 future: Future.wait(
                   gridCategoryNames.map(
-                    (category) =>
-                        ApiHandler.getCategoryQuizCount(category),
+                    (category) => ApiHandler.getCategoryQuizCount(category),
                   ),
                 ),
                 builder: (context, snapshot) {
@@ -101,7 +129,8 @@ class Categories extends ConsumerWidget {
 
                   return GridView.builder(
                     itemCount: gridCategoryNames.length,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 16.0,
                       mainAxisSpacing: 16.0,
