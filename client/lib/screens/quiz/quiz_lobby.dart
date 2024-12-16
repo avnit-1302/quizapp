@@ -57,7 +57,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
   /// Initializes the username by fetching it from the API.
   Future<void> _initUsername() async {
     String userString = await ApiHandler.getProfile(user.token!)
-          .then((value) => value['username']);
+        .then((value) => value['username']);
     setState(() {
       username = userString;
     });
@@ -127,8 +127,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
             questionCount = result['amountOfQuestions'];
           });
           quizIdCompleter.complete();
-        } else {
-        }
+        } else {}
       },
     );
   }
@@ -244,45 +243,6 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
     );
   }
 
-  /// Shows a dialog for changing the quiz timer.
-  void changeTimerClick() {
-    final TextEditingController timerController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Change timer'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Enter new timer in seconds pr question'),
-              const SizedBox(height: 8),
-              TextField(
-                keyboardType: TextInputType.number,
-                controller: timerController,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Close'),
-            ),
-            TextButton(
-              onPressed: () {
-                _changeTimer(int.parse(timerController.text));
-                Navigator.of(context).pop();
-              },
-              child: const Text('Change'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   /// Shows a dialog for changing the quiz.
   void changeQuizClick() {
     final TextEditingController quizController = TextEditingController();
@@ -376,18 +336,42 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
                         ),
                       ),
                     ),
-                    SizedTextButton(
-                      text: "${quizTimer.toString()} sec",
-                      height: 40,
-                      width: 50,
-                      textStyle: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      onPressed: () =>
-                          username == leader ? changeTimerClick() : null,
-                    ),
+                    username == leader
+                        ? DropdownButton<int>(
+                            value: quizTimer,
+                            onChanged: (newValue) {
+                              if (newValue != null) {
+                                _changeTimer(
+                                    newValue); // Call method to update timer
+                                setState(() {
+                                  quizTimer = newValue;
+                                });
+                              }
+                            },
+                            items: List<DropdownMenuItem<int>>.generate(
+                              23, // Number of options: (120 - 10) / 5 + 1
+                              (index) {
+                                final value = 10 + (index * 5);
+                                return DropdownMenuItem<int>(
+                                  value: value,
+                                  child: Text("$value seconds"),
+                                );
+                              },
+                            ),
+                            dropdownColor: Colors.white,
+                            icon: const Icon(Icons.timer),
+                            underline: Container(
+                              height: 2,
+                              color: Colors.orange,
+                            ),
+                          )
+                        : Text(
+                            "${quizTimer.toString()} sec",
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ],
                 ),
               ],
