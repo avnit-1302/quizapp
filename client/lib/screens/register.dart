@@ -99,7 +99,8 @@ class RegisterScreenState extends ConsumerState<Register> {
     toggleLoading();
     await Future.delayed(const Duration(seconds: 2), () {});
     try {
-      final result = await ApiHandler.register(email, password, confirmPassword, username, terms);
+      final result = await ApiHandler.register(
+          email, password, confirmPassword, username, terms);
       if (result.statusCode == 200) {
         router.setPath(context, 'login');
       } else {
@@ -121,6 +122,46 @@ class RegisterScreenState extends ConsumerState<Register> {
       loading = !loading;
     });
   }
+
+  void _showTermsAndConditions(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text("Terms and Conditions"),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Text(
+                "Welcome to [Your App Name]! Please carefully read the terms below before proceeding with registration:",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 12),
+              Text(
+                "1. Acceptance of Terms: By signing up, you agree to abide by all terms and policies set by [Your App Name].\n\n"
+                "2. Account Security: You are responsible for maintaining the confidentiality of your login credentials. Any activity under your account will be your responsibility.\n\n"
+                "3. Prohibited Activities: You agree not to use our services for illegal purposes, spamming, or any activity that violates others' rights.\n\n"
+                "4. Content Ownership: All content you create or interact with on our platform remains your property. However, you grant us the right to use it for service improvement purposes.\n\n"
+                "5. Termination: We reserve the right to suspend or terminate accounts violating these terms.\n\n"
+                "For detailed information, contact support at [support email address].",
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text("Close"),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -188,14 +229,33 @@ class RegisterScreenState extends ConsumerState<Register> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Checkbox(value: terms, activeColor: theme.primaryColor, onChanged: (bool? value) {
-                    setState(() {
-                      terms = value!;
-                    }
-                    );
-                  }
+                  Checkbox(
+                    value: terms,
+                    activeColor: theme.primaryColor,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        terms = value!;
+                      });
+                    },
                   ),
-                  const Text("I accept the terms and conditions.")
+                  Flexible(
+                    child: Wrap(
+                      children: [
+                        const Text("I accept the "),
+                        GestureDetector(
+                          onTap: () => _showTermsAndConditions(context),
+                          child: Text(
+                            "terms and conditions",
+                            style: TextStyle(
+                              color: theme.primaryColor,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                        const Text("."),
+                      ],
+                    ),
+                  ),
                 ],
               ),
               SmallTextButton(
@@ -223,4 +283,5 @@ class RegisterScreenState extends ConsumerState<Register> {
       ),
     );
   }
+  
 }
