@@ -27,67 +27,69 @@ class QuizPost extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.read(routerProvider.notifier);
 
-    return GestureDetector(
-      onTap: () {
-        router.setPath(context, "quiz", values: {"id": id});
-      },
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey), // Add a grey border
-          borderRadius: BorderRadius.circular(10), // Rounded corners
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Image(
-              image: NetworkImage("${ApiHandler.url}/api/quiz/thumbnail/$id"),
-              height: 96,
-              width: 212,
-              fit: BoxFit.cover,
-            ),
-            const SizedBox(height: 8),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipOval(
-                  child: ProfilePicture(
-                    url: profilePicture.isEmpty
-                        ? DummyData.profilePicture
-                        : "${ApiHandler.url}/api/user/pfp/$username?t=${DateTime.now().millisecondsSinceEpoch}",
-                    size: 50,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: GestureDetector(
+        onTap: () {
+          router.setPath(context, "quiz", values: {"id": id});
+        },
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey), // Add a grey border
+            borderRadius: BorderRadius.circular(10), // Rounded corners
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Image(
+                image: NetworkImage("${ApiHandler.url}/api/quiz/thumbnail/$id"),
+                height: 96,
+                width: 212,
+                fit: BoxFit.cover,
+              ),
+              const SizedBox(height: 8),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipOval(
+                    child: ProfilePicture(
+                      url: profilePicture.isEmpty
+                          ? DummyData.profilePicture
+                          : "${ApiHandler.url}/api/user/pfp/$username?t=${DateTime.now().millisecondsSinceEpoch}",
+                      size: 50,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 4),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                  const SizedBox(width: 4),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Text(username),
-                        const SizedBox(width: 4),
-                        const Text("|"),
-                        const SizedBox(width: 4),
-                        Text(Tools.formatCreatedAt(createdAt)),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Text(username),
+                          const SizedBox(width: 4),
+                          const Text("|"),
+                          const SizedBox(width: 4),
+                          Text(Tools.formatCreatedAt(createdAt)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
-
