@@ -66,9 +66,11 @@ class QuizPost extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 16,
+                        title.length > 50
+                            ? '${title.substring(0, 47)}...' // Truncate title if too long
+                            : title,
+                        style: TextStyle(
+                          fontSize: title.length > 20 ? 12 : 16, // Adjust font size
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -93,3 +95,4 @@ class QuizPost extends ConsumerWidget {
     );
   }
 }
+
