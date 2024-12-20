@@ -33,6 +33,10 @@ class QuizPost extends ConsumerWidget {
       },
       child: Container(
         padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey), // Add a grey border
+          borderRadius: BorderRadius.circular(10), // Rounded corners
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,7 +53,9 @@ class QuizPost extends ConsumerWidget {
               children: [
                 ClipOval(
                   child: ProfilePicture(
-                    url: profilePicture == "" ? DummyData.profilePicture : "${ApiHandler.url}/api/user/pfp/$username?t=${DateTime.now().millisecondsSinceEpoch}",
+                    url: profilePicture.isEmpty
+                        ? DummyData.profilePicture
+                        : "${ApiHandler.url}/api/user/pfp/$username?t=${DateTime.now().millisecondsSinceEpoch}",
                     size: 50,
                   ),
                 ),
@@ -84,3 +90,4 @@ class QuizPost extends ConsumerWidget {
     );
   }
 }
+
