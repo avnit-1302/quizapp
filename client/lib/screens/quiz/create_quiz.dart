@@ -79,40 +79,56 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text("Add title"),
-          content: Theme(
-            data: Theme.of(context).copyWith(
-              textSelectionTheme: TextSelectionThemeData(
-                cursorColor: theme.primaryColor,
-                selectionColor: theme.primaryColor,
-              ),
-            ),
-            child: TextField(
-              controller: titleController,
-              decoration: InputDecoration(
-                hintText: "Enter title",
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.black,
-                    width: 2.0,
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text("Add Title"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      textSelectionTheme: TextSelectionThemeData(
+                        cursorColor: theme.primaryColor,
+                        selectionColor: theme.primaryColor,
+                      ),
+                    ),
+                    child: TextField(
+                      controller: titleController,
+                      maxLength: 30,
+                      onChanged: (value) {
+                        setState(() {}); // Update UI when text changes
+                      },
+                      decoration: InputDecoration(
+                        hintText: "Enter title",
+                        counterText:
+                            "${titleController.text.length}/30 characters", // Character count
+                        enabledBorder: const UnderlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.black,
+                            width: 2.0,
+                          ),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                            color: theme.primaryColor,
+                            width: 2.0,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                    color: theme.primaryColor,
-                    width: 2.0,
-                  ),
-                ),
+                ],
               ),
-            ),
-          ),
-          actions: [
-            SmallTextButton(
-              text: "Save",
-              onPressed: () => Navigator.pop(context),
-            ),
-          ],
+              actions: [
+                SmallTextButton(
+                  text: "Save",
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -122,57 +138,70 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text("Add description"),
-          content: Theme(
-            data: Theme.of(context).copyWith(
-              textSelectionTheme: TextSelectionThemeData(
-                cursorColor: theme.primaryColor,
-                selectionColor: theme.primaryColor,
-              ),
-            ),
-            child: SizedBox(
-              width: 300,
-              child: SingleChildScrollView(
-                child: TextField(
-                  controller: descriptionController,
-                  decoration: InputDecoration(
-                    hintText: "Enter description",
-                    filled: true,
-                    fillColor: theme.cardColor,
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: theme.primaryColor,
-                        width: 2.0,
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text("Add Description"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      textSelectionTheme: TextSelectionThemeData(
+                        cursorColor: theme.primaryColor,
+                        selectionColor: theme.primaryColor,
                       ),
-                      borderRadius: BorderRadius.circular(8.0),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.black,
-                        width: 2.0,
+                    child: TextField(
+                      controller: descriptionController,
+                      maxLength: 254,
+                      onChanged: (value) {
+                        setState(() {}); // Update UI when text changes
+                      },
+                      decoration: InputDecoration(
+                        hintText: "Enter description",
+                        counterText:
+                            "${descriptionController.text.length}/254 characters", // Character count
+                        filled: true,
+                        fillColor: theme.cardColor,
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: theme.primaryColor,
+                            width: 2.0,
+                          ),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(
+                            color: Colors.black,
+                            width: 2.0,
+                          ),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: theme.primaryColor,
+                            width: 2.0,
+                          ),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
                       ),
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: theme.primaryColor,
-                        width: 2.0,
-                      ),
-                      borderRadius: BorderRadius.circular(8.0),
+                      maxLines: 5,
+                      minLines: 5,
+                      textInputAction: TextInputAction.newline,
                     ),
                   ),
-                  maxLines: 5,
-                  minLines: 5,
-                  textInputAction: TextInputAction.newline,
-                ),
+                ],
               ),
-            ),
-          ),
-          actions: [
-            SmallTextButton(
-                text: "Save", onPressed: () => Navigator.pop(context)),
-          ],
+              actions: [
+                SmallTextButton(
+                  text: "Save",
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            );
+          },
         );
       },
     );
