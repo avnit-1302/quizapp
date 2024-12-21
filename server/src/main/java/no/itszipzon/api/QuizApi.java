@@ -330,6 +330,10 @@ public class QuizApi {
       return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     }
 
+    if (description.length() > 254) {
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+    }
+
     if (title.length() > 30) {
       return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     }
